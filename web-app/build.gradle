@@ -1,0 +1,10 @@
+apply plugin: 'jetty'
+
+dependencies {
+    compile "com.sun.jersey:jersey-core:$jerseyVersion"
+    compile "com.sun.jersey:jersey-server:$jerseyVersion"
+    compile "com.sun.jersey:jersey-servlet:$jerseyVersion"
+}
+
+/* Change context path (base url). otherwise defaults to name of project */
+jettyRun.contextPath = ''

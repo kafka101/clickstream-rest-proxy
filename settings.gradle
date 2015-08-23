@@ -1,0 +1,3 @@
+rootProject.name = 'clickstream-rest-proxy'
+
+include 'web-app', 'it-test'
