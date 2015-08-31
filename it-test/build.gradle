@@ -1,0 +1,6 @@
+dependencies {
+    testCompile project(':web-app')
+    testCompile "org.hamcrest:hamcrest-all:$hamcrestVersion"
+    testCompile "org.glassfish.jersey.core:jersey-client:$jerseyVersion"
+    testCompile "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-jetty:$jerseyVersion"
+}
