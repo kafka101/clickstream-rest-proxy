@@ -1,22 +1,42 @@
 package io.kafka101.clickstream.rest.proxy;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-
+import io.kafka101.clickstream.rest.proxy.service.PingService;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
 
-public class PingServiceTest {
-	private static String PING_URL = "http://localhost:8080/ping";
+import javax.ws.rs.core.Application;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+public class PingServiceTest extends JerseyTest {
+
+	@Override
+	protected Application configure() {
+		return new ResourceConfig(PingService.class);
+	}
 
 	@Test
-	public void ping() throws Exception {
-		Client client = Client.create();
-		WebResource webResource = client.resource(PING_URL);
-		String response = webResource.get(String.class);
-
+	public void pingSync() {
+		String response = target()
+				.path("ping")
+				.request()
+				.get(String.class);
 		assertThat(response, is("pong"));
+	}
+
+	@Test
+	public void pingAsync() throws InterruptedException, ExecutionException, TimeoutException {
+		Future<String> response = target()
+				.path("ping")
+				.request().async()
+				.get(String.class);
+
+		assertThat(response.get(3000, TimeUnit.MILLISECONDS), is("pong"));
 	}
 }

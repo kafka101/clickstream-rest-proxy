@@ -1,5 +1,5 @@
 //Konfiguration
-var destination = "/event";
+var destination = "/rest/actions/click";
 
 function createEvent(ref, e) {
     var event = {};

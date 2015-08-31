@@ -7,24 +7,26 @@ ext {
     version = '1.0.0'
     junitVersion = '4.12'
     hamcrestVersion = '1.3'
-    jerseyVersion = '1.19'
+    jerseyVersion = '2.21'
+    jacksonVersion = '2.6.1'
 }
+
 subprojects {
     apply plugin: 'java'
 
     repositories {
         mavenCentral()
-        //mavenLocal()
     }
 
     dependencies {
-        //testCompile(
-        //        ["org.hamcrest:hamcrest-all:1.3"],
-        //        ["junit:junit:4.12"],
-        //        ["org.slf4j:slf4j-simple:1.7.12"]
-        //)
+        compile "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
+        compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+        testCompile(
+                ["org.hamcrest:hamcrest-all:1.3"],
+                ["junit:junit:$junitVersion"],
+                ["org.slf4j:slf4j-simple:1.7.12"]
+        )
         // needs to be separate in order to avoid classpath fun.
-        //testCompile("org.mockito:mockito-all:1.10.19")
-        //compile(["io.confluent:kafka-avro-serializer:$confluentVersion"])
+        testCompile("org.mockito:mockito-all:1.10.19")
     }
 }

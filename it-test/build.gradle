@@ -1,28 +1,6 @@
-apply plugin: 'jetty'
-
 dependencies {
     testCompile project(':web-app')
-    testCompile "junit:junit:$junitVersion"
     testCompile "org.hamcrest:hamcrest-all:$hamcrestVersion"
-    testCompile "com.sun.jersey:jersey-client:$jerseyVersion"
-}
-
-test {
-  doFirst {
-      jettyRun.contextPath = '/';
-      jettyRun.httpPort = 8080    // Port for test
-      jettyRun.daemon = true
-      jettyRun.webAppSourceDirectory = project(':web-app').jettyRun.webAppSourceDirectory
-      jettyRun.additionalRuntimeJars = project(':web-app').jettyRun.additionalRuntimeJars
-      jettyRun.jettyConfig = project(':web-app').jettyRun.jettyConfig
-      jettyRun.classpath = project(':web-app').jettyRun.classpath
-      jettyRun.webXml = project(':web-app').jettyRun.webXml
-      jettyRun.webAppSourceDirectory = project(':web-app').jettyRun.webAppSourceDirectory
-      jettyRun.execute()
-  }
-  doLast {
-      jettyStop.stopPort = 8091   // Port for stop signal
-      jettyStop.stopKey = 'stopKey'
-      jettyStop.execute()
-  }
+    testCompile "org.glassfish.jersey.core:jersey-client:$jerseyVersion"
+    testCompile "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-jetty:$jerseyVersion"
 }
