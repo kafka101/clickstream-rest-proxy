@@ -1,0 +1,9 @@
+dependencies {
+    compile "org.apache.httpcomponents:httpclient:$httpClientVersion"
+    compile ("org.apache.httpcomponents:httpasyncclient:$httpAsyncClientVersion") {
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+    }
+    compile "com.google.guava:guava:$guavaVersion"
+    compile "org.apache.avro:avro:$avroVersion"
+    testCompile "com.jayway.awaitility:awaitility:1.6.3"
+}
