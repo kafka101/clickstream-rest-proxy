@@ -20,12 +20,12 @@ public class KafkaContentTypeTest {
 
     @Test
     public void accept() {
-        assertThat(KafkaContentType.accept(),
+        assertThat(KafkaContentType.allTypes(),
                 is(equalTo("application/vnd.kafka.v1+json, application/vnd.kafka+json, application/json")));
     }
 
     @Test
     public void simpleAccept() {
-        assertThat(KafkaContentType.simpleAccept(), is(equalTo("application/vnd.kafka.v1+json")));
+        assertThat(KafkaContentType.simpleType(), is(equalTo("application/vnd.kafka.v1+json")));
     }
 }

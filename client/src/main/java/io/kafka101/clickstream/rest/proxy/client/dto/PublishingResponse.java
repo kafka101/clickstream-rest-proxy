@@ -5,13 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public final class Response {
+public final class PublishingResponse {
     public final List<Offset> offsets;
     public final Integer keySchemaId;
     public final Integer valueSchemaId;
 
     @JsonCreator
-    public Response(@JsonProperty("offsets") List<Offset> offsets,
+    public PublishingResponse(@JsonProperty("offsets") List<Offset> offsets,
             @JsonProperty("key_schema_id") Integer keySchemaId,
             @JsonProperty("value_schema_id") Integer valueSchemaId) {
         this.offsets = offsets;

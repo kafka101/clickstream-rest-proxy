@@ -14,6 +14,7 @@ ext {
     guavaVersion = '18.0'
     avroVersion = '1.7.7'
     slf4jVersion = '1.7.12'
+    confluentVersion = '2.0-SNAPSHOT'
 }
 
 subprojects {

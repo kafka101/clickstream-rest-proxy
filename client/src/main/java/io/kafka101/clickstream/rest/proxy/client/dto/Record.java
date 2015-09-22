@@ -1,6 +1,6 @@
 package io.kafka101.clickstream.rest.proxy.client.dto;
 
-public final class Record<K, V> {
+public class Record<K, V> {
     public final K key;
     public final V value;
 

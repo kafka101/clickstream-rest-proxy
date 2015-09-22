@@ -40,7 +40,7 @@ public class KafkaContentType {
     /**
      * @return <code>application/vnd.kafka.v1+json, application/vnd.kafka+json, application/json</code>
      */
-    public static final String accept() {
+    public static final String allTypes() {
         return String.format("%s, %s, %s",
                 generate(SerializationFormat.JSON, ApiVersion.V1, EmbeddedFormat.NONE),
                 generate(SerializationFormat.JSON, ApiVersion.NONE, EmbeddedFormat.NONE),
@@ -50,7 +50,7 @@ public class KafkaContentType {
     /**
      * @return <code>application/vnd.kafka.v1+json</code>
      */
-    public static final String simpleAccept() {
+    public static final String simpleType() {
         return generate(SerializationFormat.JSON, ApiVersion.V1, EmbeddedFormat.NONE);
     }
 
