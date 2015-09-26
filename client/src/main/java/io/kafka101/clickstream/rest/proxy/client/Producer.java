@@ -1,14 +1,13 @@
 package io.kafka101.clickstream.rest.proxy.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.kafka101.clickstream.rest.proxy.client.avro.AvroTranslator;
 import io.kafka101.clickstream.rest.proxy.client.dto.PublishingData;
 import io.kafka101.clickstream.rest.proxy.client.dto.PublishingResponse;
 import io.kafka101.clickstream.rest.proxy.client.dto.Record;
 import io.kafka101.clickstream.rest.proxy.client.util.HttpCallback;
 import io.kafka101.clickstream.rest.proxy.client.util.KafkaContentType;
 import org.apache.avro.Schema;
+import org.apache.avro.reflect.ReflectData;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -22,10 +21,13 @@ import org.apache.http.nio.client.HttpAsyncClient;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Producer extends AbstractClient {
-    private final AvroTranslator avroTranslator = new AvroTranslator();
+
+    private final Map<Class<?>, Schema> namespaceLessSchemaCache = new ConcurrentHashMap<>();
 
     public Producer(String topics, HttpAsyncClient httpClient) throws URISyntaxException {
         super(topics, httpClient);
@@ -37,7 +39,7 @@ public class Producer extends AbstractClient {
 
     public <T> CompletableFuture<PublishingResponse> publish(T message, String topic)
             throws JsonProcessingException, UnsupportedEncodingException {
-        Schema schema = avroTranslator.namespacelessSchemaFor(message.getClass());
+        Schema schema = namespacelessSchemaFor(message.getClass());
         return publish(schema, message, topic);
     }
 
@@ -60,5 +62,13 @@ public class Producer extends AbstractClient {
         post.addHeader(new BasicHeader(HttpHeaders.ACCEPT, KafkaContentType.allTypes()));
         post.setEntity(entity);
         httpClient.execute(post, callback);
+    }
+
+    private Schema namespacelessSchemaFor(Class<?> type) {
+        return namespaceLessSchemaCache.computeIfAbsent(type, clazz -> {
+            Schema schema = ReflectData.get().getSchema(clazz);
+            // kind of a hack to set an empty namespace :)
+            return new Schema.Parser().parse(schema.toString().replace(schema.getNamespace(), ""));
+        });
     }
 }

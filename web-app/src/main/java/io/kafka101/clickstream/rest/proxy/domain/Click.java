@@ -2,20 +2,13 @@ package io.kafka101.clickstream.rest.proxy.domain;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.kafka101.clickstream.rest.proxy.serialization.ISO8601Deserializer;
-import io.kafka101.clickstream.rest.proxy.serialization.ISO8601Serializer;
 
 import java.net.URL;
-import java.util.Date;
 
 public class Click {
 
-    @JsonDeserialize(using = ISO8601Deserializer.class)
-    @JsonSerialize(using = ISO8601Serializer.class)
-    public final Date timestamp; //ISO DATE
-    public final Coordinate<Integer> coordinate;
+    public final ISO8601Date timestamp;
+    public final Coordinate coordinate;
     public final String destination;
     public final URL referrer, source;
 
@@ -23,11 +16,11 @@ public class Click {
     private URL ip;
 
     @JsonCreator
-    public Click(@JsonProperty("timestamp") Date timestamp,
-            @JsonProperty("coords") Coordinate<Integer> coordinate,
+    public Click(@JsonProperty("timestamp") ISO8601Date timestamp,
+            @JsonProperty("coords") Coordinate coordinate,
             @JsonProperty("destination") String destination,
-            @JsonProperty("referrer")URL referrer,
-            @JsonProperty("source")URL source) {
+            @JsonProperty("referrer") URL referrer,
+            @JsonProperty("source") URL source) {
         this.timestamp = timestamp;
         this.coordinate = coordinate;
         this.destination = destination;

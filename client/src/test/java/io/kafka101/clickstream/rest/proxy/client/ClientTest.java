@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import static com.jayway.awaitility.Awaitility.await;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class ClientTest {
@@ -28,6 +29,7 @@ public class ClientTest {
     private static final String TOPICS_ENDPOINT = "http://127.0.0.1:8082/topics/";
     private static final String CONSUMERS_ENDPOINT = "http://127.0.0.1:8082/consumers/";
     private static final CloseableHttpAsyncClient client = HttpAsyncClients.createDefault();
+    private static final Person topperHarley = new Person("Topper", "Harley");
     private volatile boolean messagePublished;
     private volatile boolean consumerCreated;
     private volatile boolean personRead;
@@ -46,7 +48,7 @@ public class ClientTest {
     @Test
     public void endToEndTest() throws URISyntaxException, IOException, InterruptedException, ExecutionException {
         Producer producer = new Producer(TOPICS_ENDPOINT, client);
-        producer.publish(new Person("Topper", "Harley"), "HotShots")
+        producer.publish(topperHarley, "HotShots")
                 .whenComplete((response, throwable) -> accept(response, throwable));
         await().atMost(5, TimeUnit.SECONDS).until(() -> messagePublished);
 
@@ -73,6 +75,8 @@ public class ClientTest {
     private void accept(List<ConsumerRecord<String, Person>> response, Throwable throwable) {
         if (response != null) {
             assertThat(response.size(), is(equalTo(1)));
+            assertNotNull(response.get(0).value);
+            assertThat(response.get(0).value, is(equalTo(topperHarley)));
             personRead = true;
         } else {
             logger.error("Could not read message!", throwable);

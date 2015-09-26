@@ -1,3 +1,5 @@
+apply plugin: 'jettyEclipse'
+
 buildscript {
     repositories {
         jcenter()
@@ -6,8 +8,6 @@ buildscript {
         classpath (group: 'com.sahlbach.gradle', name: 'gradle-jetty-eclipse-plugin', version: '1.9.+')
     }
 }
-
-apply plugin: 'jettyEclipse'
 
 dependencies {
     compile project(':client')

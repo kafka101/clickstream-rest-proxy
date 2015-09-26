@@ -2,9 +2,12 @@ package io.kafka101.clickstream.rest.proxy.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.kafka101.clickstream.rest.proxy.client.Producer;
+import io.kafka101.clickstream.rest.proxy.client.dto.PublishingResponse;
 import io.kafka101.clickstream.rest.proxy.client.util.AsyncClientWrapper;
 import io.kafka101.clickstream.rest.proxy.domain.Click;
 import org.glassfish.jersey.server.ManagedAsync;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.HeaderParam;
@@ -25,7 +28,8 @@ import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 @Path("/actions")
 public class KafkaRestService {
 
-    Producer producer;
+    private static final Logger logger = LoggerFactory.getLogger(KafkaRestService.class);
+    private final Producer producer;
 
     public KafkaRestService() throws URISyntaxException {
         producer = new Producer("http://127.0.0.1:8082/topics/", AsyncClientWrapper.getInstance().getWrappedClient());
@@ -40,7 +44,16 @@ public class KafkaRestService {
             throws MalformedURLException, UnsupportedEncodingException, JsonProcessingException {
         click.setUserAgent(userAgent);
         click.setIp(uriInfo.getRequestUri().toURL());
-        producer.publish(click, "click");
+        producer.publish(click, "click")
+                .whenComplete((publishingResponse, throwable) -> accept(publishingResponse, throwable));
         response.resume(Response.status(NO_CONTENT).build());
+    }
+
+    private void accept(PublishingResponse response, Throwable throwable) {
+        if (response != null) {
+            logger.debug("{} message(s) published.", response.offsets.size());
+        } else {
+            logger.error("Could not publish message!", throwable);
+        }
     }
 }
