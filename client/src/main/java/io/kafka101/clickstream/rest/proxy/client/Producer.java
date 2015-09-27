@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Producer extends AbstractClient {
 
-    private final Map<Class<?>, Schema> namespaceLessSchemaCache = new ConcurrentHashMap<>();
+    private final Map<Class<?>, Schema> schemaCache = new ConcurrentHashMap<>();
 
     public Producer(String topics, HttpAsyncClient httpClient) throws URISyntaxException {
         super(topics, httpClient);
@@ -65,7 +65,7 @@ public class Producer extends AbstractClient {
     }
 
     private Schema namespacelessSchemaFor(Class<?> type) {
-        return namespaceLessSchemaCache.computeIfAbsent(type, clazz -> {
+        return schemaCache.computeIfAbsent(type, clazz -> {
             Schema schema = ReflectData.get().getSchema(clazz);
             // kind of a hack to set an empty namespace :)
             return new Schema.Parser().parse(schema.toString().replace(schema.getNamespace(), ""));

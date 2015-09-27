@@ -9,9 +9,6 @@ public final class AsyncClientWrapper {
             .setSocketTimeout(3000)
             .setConnectTimeout(3000).build();
     private static final CloseableHttpAsyncClient httpClient = HttpAsyncClients.custom()
-            //.setDefaultHeaders(Lists.newArrayList(
-            //        new BasicHeader(HttpHeaders.CONTENT_TYPE, KafkaContentType.avro()),
-            //        new BasicHeader(HttpHeaders.ACCEPT, KafkaContentType.allTypes())))
             .setDefaultRequestConfig(REQUEST_CONFIG)
             .setMaxConnPerRoute(1000)
             .setMaxConnTotal(1000)
