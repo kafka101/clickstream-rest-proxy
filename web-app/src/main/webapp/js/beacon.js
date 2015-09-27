@@ -11,23 +11,23 @@ function createEvent(ref, e) {
     return event;
 }
 
-function sendBeacon(beacon) {
-    console.log("Sending beacon event to server:")
-    console.log(beacon);
+function sendClickEvent(click) {
+    console.log("Sending click event to server:")
+    console.log(click);
     $.ajax(destination, {
         type: "POST",
         async: true,
-        data: JSON.stringify(beacon),
+        data: JSON.stringify(click),
         contentType: "application/json",
         dataType: "json",
         success: function (event) {
-            console.log("Beacon sent successfully");
+            console.log("Click event sent successfully");
         }
     });
 }
 
 $(document).ready(function (e) {
     $('a').click(function (e) {
-        sendBeacon(createEvent($(this), e));
+        sendClickEvent(createEvent($(this), e));
     });
 });
