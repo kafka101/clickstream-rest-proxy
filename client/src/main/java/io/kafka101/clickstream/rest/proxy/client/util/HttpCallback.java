@@ -10,62 +10,59 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
 
-public class HttpCallback<T> implements FutureCallback<HttpResponse> {
-    private final CompletableFuture<T> future;
-    private final ObjectMapper mapper = new ObjectMapper();
+public class HttpCallback<T> extends CompletableFuture<T> implements FutureCallback<HttpResponse> {
+    private static final ObjectMapper mapper = new ObjectMapper();
     private final JavaType javaType;
 
-    public HttpCallback(CompletableFuture<T> future, JavaType javaType) {
-        this.future = future;
+    public HttpCallback(JavaType javaType) {
         this.javaType = javaType;
     }
 
-    public HttpCallback(CompletableFuture<T> future, Class<T> responseClass) {
-        this.future = future;
+    public HttpCallback(Class<T> responseClass) {
         this.javaType = mapper.getTypeFactory().constructType(responseClass);
     }
 
     @Override
     public void completed(HttpResponse response) {
-        parseHttpResponse(response, future);
+        parseHttpResponse(response);
     }
 
     @Override
     public void failed(Exception ex) {
-        future.completeExceptionally(ex);
+        this.completeExceptionally(ex);
     }
 
     @Override
     public void cancelled() {
-        future.cancel(true);
+        this.cancel(true);
     }
 
-    private void parseHttpResponse(HttpResponse httpResponse, CompletableFuture<T> future) {
+    private void parseHttpResponse(HttpResponse httpResponse) {
         if (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-            parseResponse(httpResponse, future);
+            parseResponse(httpResponse);
         } else {
-            parseError(httpResponse, future);
+            parseError(httpResponse);
         }
     }
 
-    private void parseResponse(HttpResponse httpResponse, CompletableFuture<T> future) {
+    private void parseResponse(HttpResponse httpResponse) {
         try {
             InputStream inputStream = httpResponse.getEntity().getContent();
-            future.complete(mapper.readValue(inputStream, javaType));
+            this.complete(mapper.readValue(inputStream, javaType));
             inputStream.close();
         } catch (IOException exception) {
-            future.completeExceptionally(exception);
+            this.completeExceptionally(exception);
         }
     }
 
-    private void parseError(HttpResponse httpResponse, CompletableFuture<T> future) {
+    private void parseError(HttpResponse httpResponse) {
         try {
             InputStream inputStream = httpResponse.getEntity().getContent();
             KafkaRestException error = mapper.readValue(inputStream, KafkaRestException.class);
             inputStream.close();
-            future.completeExceptionally(error);
+            this.completeExceptionally(error);
         } catch (IOException exception) {
-            future.completeExceptionally(exception);
+            this.completeExceptionally(exception);
         }
     }
 }

@@ -25,7 +25,6 @@ import java.util.concurrent.ExecutionException;
 
 public class Consumer extends AbstractClient {
 
-
     private static final String CONSUME_URI_TEMPLATE = "%s/instances/%s/topics/%s/";
     private static final String DELETE_URI_TEMPLATE = "%s/instances/%s/";
 
@@ -37,27 +36,33 @@ public class Consumer extends AbstractClient {
         super(consumers, httpClient);
     }
 
+    public CompletableFuture<ConsumerResponse> create(String group, ConsumerData data)
+            throws JsonProcessingException, UnsupportedEncodingException {
+        HttpPost post = new HttpPost(baseUri.resolve(group));
+        post.addHeader(new BasicHeader(HttpHeaders.CONTENT_TYPE, KafkaContentType.avro()));
+        post.setEntity(new StringEntity(mapper.writeValueAsString(data), ContentType.APPLICATION_JSON));
+
+        HttpCallback<ConsumerResponse> callback = new HttpCallback<>(ConsumerResponse.class);
+        httpClient.execute(post, callback);
+
+        return callback;
+    }
+
     public CompletableFuture<ConsumerResponse> create(String group, String id, ConsumerData.Format format,
             ConsumerData.OffsetReset autoOffsetReset, boolean autoCommitEnable)
             throws JsonProcessingException, UnsupportedEncodingException {
-
-        HttpPost post = new HttpPost(baseUri.resolve(group));
-        post.addHeader(new BasicHeader(HttpHeaders.CONTENT_TYPE, KafkaContentType.avro()));
         ConsumerData data = new ConsumerData(id, format, autoOffsetReset, autoCommitEnable);
-        post.setEntity(new StringEntity(mapper.writeValueAsString(data), ContentType.APPLICATION_JSON));
-        CompletableFuture<ConsumerResponse> future = new CompletableFuture();
-        httpClient.execute(post, new HttpCallback<>(future, ConsumerResponse.class));
-
-        return future;
+        return create(group, data);
     }
 
     public <K, V> CompletableFuture<List<ConsumerRecord<K, V>>> consume(String group, String id, String topic,
             Class<K> keyClass, Class<V> valueClazz) {
         HttpGet get = new HttpGet(baseUri.resolve(String.format(CONSUME_URI_TEMPLATE, group, id, topic)));
         get.addHeader(new BasicHeader(HttpHeaders.ACCEPT, KafkaContentType.avro()));
-        CompletableFuture<List<ConsumerRecord<K, V>>> future = new CompletableFuture();
-        httpClient.execute(get, new HttpCallback<>(future, constructType(keyClass, valueClazz)));
-        return future;
+
+        HttpCallback<List<ConsumerRecord<K, V>>> callback = new HttpCallback<>(constructType(keyClass, valueClazz));
+        httpClient.execute(get, callback);
+        return callback;
     }
 
     public void destroy(String group, String id) throws ExecutionException, InterruptedException {

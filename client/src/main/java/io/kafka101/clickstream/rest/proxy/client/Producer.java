@@ -47,13 +47,13 @@ public class Producer extends AbstractClient {
             throws JsonProcessingException, UnsupportedEncodingException {
 
         PublishingData data = new PublishingData(new Record(message), null, null, schema.toString(), null);
-        CompletableFuture<PublishingResponse> future = new CompletableFuture();
+        HttpCallback<PublishingResponse> callback = new HttpCallback(PublishingResponse.class);
 
         executePost(baseUri.resolve(topic),
                 new StringEntity(mapper.writeValueAsString(data), ContentType.APPLICATION_JSON),
-                new HttpCallback(future, PublishingResponse.class));
+                callback);
 
-        return future;
+        return callback;
     }
 
     private void executePost(URI topic, HttpEntity entity, FutureCallback<HttpResponse> callback) {
